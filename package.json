@@ -6,5 +6,11 @@
   "repository": "https://github.com/damorej-at-theinstitutes/webpack-concat-files-plugin.git",
   "author": "AICPCU\\damorej <damorej@theinstitutes.org>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "globby": "^10.0.1"
+  },
+  "peerDependencies": {
+    "webpack": "4"
+  }
 }
