@@ -75,7 +75,8 @@ const webpackConfig = {
 The `options` object can contain the following properties:
 
 * `bundles`: (Array) List of bundle objects
-* `separator`: (String) Separator inserted between concatenated content (Optional, default: '\n')
+* `separator`: (String) Separator inserted between concatenated content (Optional, default `'\n'`)
+* `allowWatch`: (Boolean) Determines whether bundles should be watched and automatically concatenated when using Webpack's watch mode (Optional, default `true`)
 
 ### Bundles
 Each object specified in the `bundles` array can contain the following
@@ -84,7 +85,7 @@ properties:
 * `destination`: (String) Output path for concatenated file.
 * `source`: (String or Array) Glob string or array of glob strings describing files to concatenate.
 * `transforms`: (Object) Object describing transformations of concatenated files. (Optional)
-* `encoding`: (String) Encoding to use when reading files. (Optional, default 'utf8')
+* `encoding`: (String) Encoding to use when reading files. (Optional, default `'utf8'`)
 
 ### Transforms
 The object specified for each `transforms` bundle property can contain the

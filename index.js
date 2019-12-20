@@ -1,3 +1,4 @@
+const chokidar = require('chokidar');
 const fs = require('fs');
 const globby = require('globby');
 const promisify = require('util').promisify;
@@ -6,6 +7,8 @@ const promisify = require('util').promisify;
 const readFilePromise = promisify(fs.readFile);
 const writeFilePromise = promisify(fs.writeFile);
 const openPromise = promisify(fs.open);
+
+const log = require('webpack-log')({ name: 'WebpackConcatenateFilesPlugin' });
 
 class WebpackConcatenateFilesPlugin {
 
@@ -18,6 +21,7 @@ class WebpackConcatenateFilesPlugin {
    */
   constructor(options) {
     this.options = options;
+    this.watchers = null;
 
     // Bind apply function.
     this.apply = this.apply.bind(this);
@@ -29,25 +33,94 @@ class WebpackConcatenateFilesPlugin {
    * @param {Object} compiler - Webpack compiler object.
    */
   async apply(compiler) {
-    const { bundles, separator = '\n' } = this.options;
+    const { bundles, separator = '\n', allowWatch = true } = this.options;
 
-    compiler.hooks.emit.tapAsync(
+    /*
+     * Webpack "run" hook.
+     *
+     * Called when Webpack is ran without watch mode.
+     */
+    compiler.hooks.run.tapAsync(
       'WebpackConcatenateFilesPlugin',
-      async (compilation, callback) => {
+      async (compiler, callback) => {
+        await this.concatenateAllBundles(bundles, separator);
+        callback();
+      }
+    );
 
-        await Promise.all(bundles.map(async (bundle) => {
-          return await this.concatenateBundle(bundle, separator);
-        }));
+    /*
+     * Webpack "watchRun" hook.
+     *
+     * Called when Webpack is ran with watch mode. If allowWatch is true, this
+     * hook sets up file watchers for each bundle source to allow bundles to
+     * be automatically concatenated.
+     */
+    compiler.hooks.watchRun.tapAsync(
+      'WebpackConcatenateFilesPlugin',
+      async (compiler, callback) => {
+        if (this.watchers === null) {
+          if (allowWatch) {
+            // Set up watchers.
+            this.watchers = [];
+
+            const watcherOptions = {
+              ignoreInitial: true,
+            }
+
+            bundles.forEach((bundle) => {
+              const watcher = chokidar.watch(bundle.source, watcherOptions);
+              watcher
+                .on('add', file => this.concatenateBundle(bundle))
+                .on('change', file => this.concatenateBundle(bundle))
+                .on('unlink', file => this.concatenateBundle(bundle));
+
+              this.watchers.push(watcher);
+            });
+          }
+
+          // Perform initial concatenation.
+          await this.concatenateAllBundles(bundles, separator);
+        }
 
         callback();
       }
     );
+
+    /*
+     * Webpack "watchClose" hook.
+     *
+     * Called when Webpack stops watching. Closes any file watchers that were
+     * set up in the "watchRun" hook.
+     */
+    compiler.hooks.watchClose.tap(
+      'WebpackConcatenateFilesPlugin',
+      () => {
+        if (this.watchers) {
+          this.watchers.forEach((watcher) => {
+            watcher.close();
+          });
+        }
+      }
+    );
+  }
+
+  /**
+   * Performs concatenation on all of the given bundles.
+   *
+   * @param {Object[]} bundles - Array of bundle objects to concatenate.
+   * @param {string} separator - String to use to separate concatenated content.
+   */
+  async concatenateAllBundles(bundles, separator = '\n') {
+    await Promise.all(bundles.map(async (bundle) => {
+      return await this.concatenateBundle(bundle, separator);
+    }));
   }
 
   /**
    * Performs concatenation for the given bundle.
    *
    * @param {Object} bundle - Object representing bundle to concatenate.
+   * @param {string} separator - String to use to separate concatenated content.
    */
   async concatenateBundle(bundle, separator = '\n') {
     const { destination, source, transforms, encoding = 'utf8' } = bundle;
