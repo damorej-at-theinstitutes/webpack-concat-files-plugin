@@ -1,6 +1,8 @@
 # webpack-concat-files-plugin
 Concatenate and transform files using Webpack
 
+[![NPM](https://nodei.co/npm/webpack-concat-files-plugin.png)](https://nodei.co/npm/webpack-concat-files-plugin/)
+
 ## Installation
 Install the plugin with npm:
 ```shell
