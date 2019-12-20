@@ -14,5 +14,13 @@
   },
   "peerDependencies": {
     "webpack": "4"
-  }
+  },
+  "keywords": [
+    "webpack",
+    "plugin",
+    "concat",
+    "concatenation",
+    "files",
+    "transform"
+  ]
 }
