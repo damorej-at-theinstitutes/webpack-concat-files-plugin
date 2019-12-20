@@ -158,6 +158,8 @@ class WebpackConcatenateFilesPlugin {
 
     await this.prepareBundleDestination(destination);
     await writeFilePromise(destination, output, encoding);
+
+    log.info(`Concatenated '${destination}'`);
   }
 
   /**
