@@ -253,7 +253,7 @@ class WebpackConcatenateFilesPlugin {
   async applyBeforeTransform(contentObject, transformation) {
     const loadedContent = await contentObject.content;
 
-    return await transformation(loadedContent);
+    return await transformation(loadedContent, contentObject.path);
   }
 
   /**
