@@ -93,5 +93,5 @@ properties:
 The object specified for each `transforms` bundle property can contain the
 following properties:
 
-* `before`: (Callback) Callback function to apply changes to file content before concatenation. Accepts a single string parameter containing the content of the file being concatenated, and the string returned by this function is used for concatenation. (Optional)
+* `before`: (Callback) Callback function to apply changes to file content before concatenation. Accepts two string parameters: the contents of the file being concatenated, and the path to the file being concatenated. The string returned by this function is used for the concatenated output. (Optional)
 * `after`: (Callback) Callback function to apply changes to file content after concatenation. Accepts a single string parameter containing the contents of the concatenated files, and the string returned by this function is used as the final concatenation output. (Optional)
