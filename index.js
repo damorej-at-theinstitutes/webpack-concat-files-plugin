@@ -181,7 +181,7 @@ class WebpackConcatenateFilesPlugin {
    * Prepares bundle destination by creating an empty file.
    *
    * If the destination file already exists, the existing file is truncated
-   * used instead.
+   * and used instead.
    *
    * @param {string} destination - Bundle output destination.
    */
