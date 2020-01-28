@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2020-01-28
+### Fixed
+- Issue in `prepareBundleDestination` causing `ENOENT` errors
+
 ## [0.3.0] - 2020-01-02
 ### Added
 - Second parameter to `before` transformation callback which contains the path to the source file.

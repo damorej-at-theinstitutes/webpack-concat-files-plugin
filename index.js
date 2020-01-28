@@ -1,6 +1,7 @@
 const chokidar = require('chokidar');
 const fs = require('fs');
 const globby = require('globby');
+const path = require('path');
 const promisify = require('util').promisify;
 
 // Promisified fs functions.
@@ -156,7 +157,7 @@ class WebpackConcatenateFilesPlugin {
       output = await this.applyAfterTransform(output, transforms.after);
     }
 
-    await this.prepareBundleDestination(destination);
+    this.prepareBundleDestination(destination);
     await writeFilePromise(destination, output, encoding);
 
     log.info(`Concatenated '${destination}'`);
@@ -181,12 +182,19 @@ class WebpackConcatenateFilesPlugin {
    * Prepares bundle destination by creating an empty file.
    *
    * If the destination file already exists, the existing file is truncated
-   * used instead.
+   * and used instead.
    *
    * @param {string} destination - Bundle output destination.
    */
-  async prepareBundleDestination(destination) {
-    await openPromise(destination, 'w');
+  prepareBundleDestination(destination) {
+    const destPath = path.resolve(process.cwd(), destination);
+    const destDir = path.dirname(destPath);
+    if (!fs.existsSync(destPath)) {
+      fs.mkdirSync(destDir, {
+        recursive: true,
+      });
+      fs.writeFileSync(destPath, '', 'utf8');
+    }
   }
 
   /**
