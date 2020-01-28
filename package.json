@@ -1,6 +1,6 @@
 {
   "name": "webpack-concat-files-plugin",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Concatenate and transform files using Webpack",
   "main": "index.js",
   "repository": "https://github.com/damorej-at-theinstitutes/webpack-concat-files-plugin.git",
