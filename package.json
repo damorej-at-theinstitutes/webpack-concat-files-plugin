@@ -8,9 +8,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "chokidar": "^3.3.1",
     "globby": "^10.0.1",
-    "webpack-log": "^3.0.1",
     "webpack-sources": "^1.4.3"
   },
   "peerDependencies": {
