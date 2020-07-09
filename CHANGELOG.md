@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Custom log output using `webpack-log` package
+- Remove `chokidar` and `webpack-log` dependencies
 
 ## [0.3.1] - 2020-01-28
 ### Fixed
