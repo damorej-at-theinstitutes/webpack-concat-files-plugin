@@ -66,13 +66,17 @@ class WebpackConcatenateFilesPlugin {
     let dirnames = new Set();
     filepaths.forEach(filepath => {
       const absolutePath = path.resolve(compiler.options.context, filepath);
+      if (!compilation.fileDependencies.has(absolutePath)) {
       compilation.fileDependencies.add(absolutePath);
+      }
 
       dirnames.add(path.dirname(filepath));
     });
 
     dirnames.forEach(dirname => {
-      compilation.contextDependencies.add(dirname);
+      if (!compilation.contextDependencies.has(dirname)) {
+        compilation.contextDependencies.add(path.resolve(compiler.options.context, dirname));
+      }
     });
   }
 
