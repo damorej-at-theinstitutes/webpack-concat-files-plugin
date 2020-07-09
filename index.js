@@ -1,15 +1,11 @@
-const chokidar = require('chokidar');
 const fs = require('fs');
 const globby = require('globby');
 const path = require('path');
 const promisify = require('util').promisify;
+const { RawSource } = require('webpack-sources');
 
 // Promisified fs functions.
 const readFilePromise = promisify(fs.readFile);
-const writeFilePromise = promisify(fs.writeFile);
-const openPromise = promisify(fs.open);
-
-const log = require('webpack-log')({ name: 'WebpackConcatenateFilesPlugin' });
 
 class WebpackConcatenateFilesPlugin {
 
@@ -36,85 +32,48 @@ class WebpackConcatenateFilesPlugin {
   async apply(compiler) {
     const { bundles, separator = '\n', allowWatch = true } = this.options;
 
-    /*
-     * Webpack "run" hook.
-     *
-     * Called when Webpack is ran without watch mode.
-     */
-    compiler.hooks.run.tapAsync(
+    compiler.hooks.emit.tapAsync(
       'WebpackConcatenateFilesPlugin',
-      async (compiler, callback) => {
-        await this.concatenateAllBundles(bundles, separator);
-        callback();
-      }
-    );
+      async (compilation, callback) => {
+        await Promise.all(
+          bundles.map(async bundle => {
+            const filepaths = await this.getPathsForSource(bundle.source);
 
-    /*
-     * Webpack "watchRun" hook.
-     *
-     * Called when Webpack is ran with watch mode. If allowWatch is true, this
-     * hook sets up file watchers for each bundle source to allow bundles to
-     * be automatically concatenated.
-     */
-    compiler.hooks.watchRun.tapAsync(
-      'WebpackConcatenateFilesPlugin',
-      async (compiler, callback) => {
-        if (this.watchers === null) {
-          if (allowWatch) {
-            // Set up watchers.
-            this.watchers = [];
-
-            const watcherOptions = {
-              ignoreInitial: true,
+            if (allowWatch) {
+              this.createWatchers(filepaths, compiler, compilation);
             }
 
-            bundles.forEach((bundle) => {
-              const watcher = chokidar.watch(bundle.source, watcherOptions);
-              watcher
-                .on('add', file => this.concatenateBundle(bundle))
-                .on('change', file => this.concatenateBundle(bundle))
-                .on('unlink', file => this.concatenateBundle(bundle));
-
-              this.watchers.push(watcher);
-            });
-          }
-
-          // Perform initial concatenation.
-          await this.concatenateAllBundles(bundles, separator);
-        }
+            const outputKey = path.relative(compiler.options.output.path, bundle.destination);
+            const concatenatedBundle = await this.concatenateBundle(bundle, separator);
+            compilation.assets[outputKey] = new RawSource(concatenatedBundle);
+          })
+        );
 
         callback();
-      }
-    );
-
-    /*
-     * Webpack "watchClose" hook.
-     *
-     * Called when Webpack stops watching. Closes any file watchers that were
-     * set up in the "watchRun" hook.
-     */
-    compiler.hooks.watchClose.tap(
-      'WebpackConcatenateFilesPlugin',
-      () => {
-        if (this.watchers) {
-          this.watchers.forEach((watcher) => {
-            watcher.close();
-          });
-        }
       }
     );
   }
 
   /**
-   * Performs concatenation on all of the given bundles.
+   * Add source file directories and inidividual files to dependencies list.
+   * Triggers Webpack to recompile when updates occur.
    *
-   * @param {Object[]} bundles - Array of bundle objects to concatenate.
-   * @param {string} separator - String to use to separate concatenated content.
+   * @param {String[]} filepaths - Relative filepaths for source files.
+   * @param {Object} compiler - Webpack compiler object.
+   * @param {Object} compilation - Webpack compilation object.
    */
-  async concatenateAllBundles(bundles, separator = '\n') {
-    await Promise.all(bundles.map(async (bundle) => {
-      return await this.concatenateBundle(bundle, separator);
-    }));
+  createWatchers(filepaths, compiler, compilation) {
+    let dirnames = new Set();
+    filepaths.forEach(filepath => {
+      const absolutePath = path.resolve(compiler.options.context, filepath);
+      compilation.fileDependencies.add(absolutePath);
+
+      dirnames.add(path.dirname(filepath));
+    });
+
+    dirnames.forEach(dirname => {
+      compilation.contextDependencies.add(dirname);
+    });
   }
 
   /**
@@ -124,7 +83,7 @@ class WebpackConcatenateFilesPlugin {
    * @param {string} separator - String to use to separate concatenated content.
    */
   async concatenateBundle(bundle, separator = '\n') {
-    const { destination, source, transforms, encoding = 'utf8' } = bundle;
+    const { source, transforms, encoding = 'utf8' } = bundle;
     const paths = await this.getPathsForSource(source);
 
     /*
@@ -157,10 +116,7 @@ class WebpackConcatenateFilesPlugin {
       output = await this.applyAfterTransform(output, transforms.after);
     }
 
-    this.prepareBundleDestination(destination);
-    await writeFilePromise(destination, output, encoding);
-
-    log.info(`Concatenated '${destination}'`);
+    return output;
   }
 
   /**
@@ -176,25 +132,6 @@ class WebpackConcatenateFilesPlugin {
       return `${acc}${separator}${cur}`;
     }
     return cur;
-  }
-
-  /**
-   * Prepares bundle destination by creating an empty file.
-   *
-   * If the destination file already exists, the existing file is truncated
-   * and used instead.
-   *
-   * @param {string} destination - Bundle output destination.
-   */
-  prepareBundleDestination(destination) {
-    const destPath = path.resolve(process.cwd(), destination);
-    const destDir = path.dirname(destPath);
-    if (!fs.existsSync(destPath)) {
-      fs.mkdirSync(destDir, {
-        recursive: true,
-      });
-      fs.writeFileSync(destPath, '', 'utf8');
-    }
   }
 
   /**
