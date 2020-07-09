@@ -103,7 +103,23 @@ class WebpackConcatenateFilesPlugin {
 
               const outputKey = path.relative(compiler.options.output.path, bundle.destination);
               const concatenatedBundle = await this.concatenateBundle(bundle, separator);
+
               compilation.assets[outputKey] = new RawSource(concatenatedBundle);
+
+              // Log output message if in watch mode and not on first run.
+              const logger = (() => {
+                if (!compiler.watchMode || plugin.firstRun) {
+                  return null;
+                }
+                if (!compiler.getInfrastructureLogger) {
+                  return console;
+                }
+                return compiler.getInfrastructureLogger("webpack-concat-files-plugin");
+              })();
+
+              if (logger) {
+                logger.info(`Concatenated '${outputKey}'`);
+              }
             })
         );
 
