@@ -42,6 +42,10 @@ class WebpackConcatenateFilesPlugin {
     compiler.hooks.emit.tapAsync(
       'WebpackConcatenateFilesPlugin',
       async (compilation, callback) => {
+        /*
+         * Determine which files have changed since the last run.
+         * Only applicable when Webpack is in watch mode.
+         */
         const changedFiles = Array
           .from(compilation.fileTimestamps.keys())
           .filter((watchFile) => {
