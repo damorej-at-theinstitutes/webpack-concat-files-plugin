@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Output files using Webpack compilation `assets` object
 - Use Webpack `fileDependencies` and `contextDependencies` objects for file and directory watching, respectively
+- Improve `README.md` options documentation
 
 ### Removed
 - Custom log output using `webpack-log` package
