@@ -20,6 +20,12 @@ class WebpackConcatenateFilesPlugin {
     this.options = options;
     this.watchers = null;
 
+    // Timestamp tracking.
+    this.firstRun = true;
+    this.startTime = Date.now();
+    this.prevTimestamps = null;
+    this.prevAssets = null;
+
     // Bind apply function.
     this.apply = this.apply.bind(this);
   }
@@ -31,24 +37,95 @@ class WebpackConcatenateFilesPlugin {
    */
   async apply(compiler) {
     const { bundles, separator = '\n', allowWatch = true } = this.options;
+    const plugin = this;
 
     compiler.hooks.emit.tapAsync(
       'WebpackConcatenateFilesPlugin',
       async (compilation, callback) => {
-        await Promise.all(
-          bundles.map(async bundle => {
-            const filepaths = await this.getPathsForSource(bundle.source);
-
-            if (allowWatch) {
-              this.createWatchers(filepaths, compiler, compilation);
+        /*
+         * Determine which files have changed since the last run.
+         * Only applicable when Webpack is in watch mode.
+         */
+        const changedFiles = Array
+          .from(compilation.fileTimestamps.keys())
+          .filter((watchFile) => {
+            if (!plugin.prevTimestamps) {
+              return true;
             }
+            const absoluteWatchFile = path.resolve(compiler.options.context, watchFile);
 
-            const outputKey = path.relative(compiler.options.output.path, bundle.destination);
-            const concatenatedBundle = await this.concatenateBundle(bundle, separator);
-            compilation.assets[outputKey] = new RawSource(concatenatedBundle);
+            const lastTimestamp = plugin.prevTimestamps.get(absoluteWatchFile);
+            const newTimestamp = compilation.fileTimestamps.get(absoluteWatchFile);
+
+            return (
+              (lastTimestamp || this.startTime) <
+              (newTimestamp || Infinity)
+            );
           })
+          .filter((watchFile) => {
+            return !(fs.lstatSync(watchFile).isDirectory());
+          });
+
+        await Promise.all(
+          bundles
+            .map(async bundle => {
+              const filepaths = await this.getPathsForSource(bundle.source);
+
+              /*
+               * Determine if any of the source files for this bundle
+               * have changed.
+               */
+              const bundleFilesAbsolute = filepaths.map((bundleFile) => {
+                if (!path.isAbsolute(bundleFile)) {
+                  return path.resolve(compiler.options.context, bundleFile);
+                }
+                return bundleFile;
+              });
+
+              const bundleHasChange = changedFiles.some((changedFile) => {
+                const changedFileAbsolute = path.resolve(compiler.options.context, changedFile);
+                return bundleFilesAbsolute.includes(changedFileAbsolute);
+              });
+
+              if (allowWatch) {
+                this.createWatchers(filepaths, compiler, compilation);
+              }
+
+              /*
+               * Short-circuit if bundle does not have any files that have
+               * changed, emitting the existing asset from the previous run.
+               */
+              if (!bundleHasChange && !plugin.firstRun) {
+                const outputKey = path.relative(compiler.options.output.path, bundle.destination);
+                compilation.assets[outputKey] = this.prevAssets[outputKey];
+                return;
+              }
+
+              const outputKey = path.relative(compiler.options.output.path, bundle.destination);
+              const concatenatedBundle = await this.concatenateBundle(bundle, separator);
+
+              compilation.assets[outputKey] = new RawSource(concatenatedBundle);
+
+              // Log output message if in watch mode and not on first run.
+              const logger = (() => {
+                if (!compiler.watchMode || plugin.firstRun) {
+                  return null;
+                }
+                if (!compiler.getInfrastructureLogger) {
+                  return console;
+                }
+                return compiler.getInfrastructureLogger("webpack-concat-files-plugin");
+              })();
+
+              if (logger) {
+                logger.info(`Concatenated '${outputKey}'`);
+              }
+            })
         );
 
+        plugin.prevAssets = compilation.assets;
+        plugin.prevTimestamps = compilation.fileTimestamps;
+        plugin.firstRun = false;
         callback();
       }
     );
@@ -66,13 +143,17 @@ class WebpackConcatenateFilesPlugin {
     let dirnames = new Set();
     filepaths.forEach(filepath => {
       const absolutePath = path.resolve(compiler.options.context, filepath);
-      compilation.fileDependencies.add(absolutePath);
+      if (!compilation.fileDependencies.has(absolutePath)) {
+        compilation.fileDependencies.add(absolutePath);
+      }
 
       dirnames.add(path.dirname(filepath));
     });
 
     dirnames.forEach(dirname => {
-      compilation.contextDependencies.add(dirname);
+      if (!compilation.contextDependencies.has(dirname)) {
+        compilation.contextDependencies.add(path.resolve(compiler.options.context, dirname));
+      }
     });
   }
 
