@@ -29,9 +29,9 @@ const webpackConfig = {
         {
           destination: './dist/polyfills.min.js',
           source: './scripts/polyfills/**/*.js',
-        }
-      ]
-    })
+        },
+      ],
+    }),
   ],
 };
 ```
@@ -66,9 +66,9 @@ const webpackConfig = {
               return terser.minify(code).code;
             },
           },
-        }
-      ]
-    })
+        },
+      ],
+    }),
   ],
 };
 ```
