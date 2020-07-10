@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2020-07-10
+### Changed
+- Output files using Webpack compilation `assets` object
+- Use Webpack `fileDependencies` and `contextDependencies` objects for file and directory watching, respectively
+- Improve `README.md` options documentation
+
+### Removed
+- Custom log output using `webpack-log` package
+- `chokidar` and `webpack-log` dependencies
+
 ## [0.3.1] - 2020-01-28
 ### Fixed
 - Issue in `prepareBundleDestination` causing `ENOENT` errors

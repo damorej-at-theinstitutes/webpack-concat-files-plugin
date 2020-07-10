@@ -29,9 +29,9 @@ const webpackConfig = {
         {
           destination: './dist/polyfills.min.js',
           source: './scripts/polyfills/**/*.js',
-        }
-      ]
-    })
+        },
+      ],
+    }),
   ],
 };
 ```
@@ -66,9 +66,9 @@ const webpackConfig = {
               return terser.minify(code).code;
             },
           },
-        }
-      ]
-    })
+        },
+      ],
+    }),
   ],
 };
 ```
@@ -76,22 +76,22 @@ const webpackConfig = {
 ## Options
 The `options` object can contain the following properties:
 
-* `bundles`: (Array) List of bundle objects
-* `separator`: (String) Separator inserted between concatenated content (Optional, default `'\n'`)
-* `allowWatch`: (Boolean) Determines whether bundles should be watched and automatically concatenated when using Webpack's watch mode (Optional, default `true`)
+* `bundles`: (_Array_) List of bundle objects
+* `separator`: (_String_) Separator inserted between concatenated content (Optional, default `'\n'`)
+* `allowWatch`: (_Boolean_) Determines whether bundles should be watched and automatically concatenated when using Webpack's watch mode (Optional, default `true`)
 
 ### Bundles
 Each object specified in the `bundles` array can contain the following
 properties:
 
-* `destination`: (String) Output path for concatenated file.
-* `source`: (String or Array) Glob string or array of glob strings describing files to concatenate.
-* `transforms`: (Object) Object describing transformations of concatenated files. (Optional)
-* `encoding`: (String) Encoding to use when reading files. (Optional, default `'utf8'`)
+* `destination`: (_String_) Output path for concatenated file.
+* `source`: (_String_ or _Array_) Glob string or array of glob strings describing files to concatenate.
+* `transforms`: (_Object_) Object describing transformations of concatenated files. (Optional)
+* `encoding`: (_String_) Encoding to use when reading files. (Optional, default `'utf8'`)
 
 ### Transforms
 The object specified for each `transforms` bundle property can contain the
 following properties:
 
-* `before`: (Callback) Callback function to apply changes to file content before concatenation. Accepts two string parameters: the contents of the file being concatenated, and the path to the file being concatenated. The string returned by this function is used for the concatenated output. (Optional)
-* `after`: (Callback) Callback function to apply changes to file content after concatenation. Accepts a single string parameter containing the contents of the concatenated files, and the string returned by this function is used as the final concatenation output. (Optional)
+* `before(content, filepath)`: (_Callback_) Function to apply changes to file contents before concatenation. Accepts two string parameters: the contents of the file being concatenated, and the path to the source file being concatenated. The string returned by this function is used for the concatenated output. (Optional)
+* `after(content)`: (_Callback_) Function to apply changes to file contents after concatenation. Accepts a single string parameter containing the contents of the concatenated files, and the string returned by this function is used as the final concatenation output. (Optional)
