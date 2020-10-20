@@ -63,7 +63,7 @@ class WebpackConcatenateFilesPlugin {
             );
           })
           .filter((watchFile) => {
-            return !(fs.lstatSync(watchFile).isDirectory());
+            return fs.existsSync(watchFile) && !fs.lstatSync(watchFile).isDirectory();
           });
 
         await Promise.all(
