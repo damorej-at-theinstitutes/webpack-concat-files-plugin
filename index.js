@@ -47,7 +47,7 @@ class WebpackConcatenateFilesPlugin {
          * Only applicable when Webpack is in watch mode.
          */
         const changedFiles = Array
-          .from(compilation.fileTimestamps.keys())
+          .from(compilation.fileSystemInfo._fileTimestamps.keys())
           .filter((watchFile) => {
             if (!plugin.prevTimestamps) {
               return true;
@@ -55,7 +55,7 @@ class WebpackConcatenateFilesPlugin {
             const absoluteWatchFile = path.resolve(compiler.options.context, watchFile);
 
             const lastTimestamp = plugin.prevTimestamps.get(absoluteWatchFile);
-            const newTimestamp = compilation.fileTimestamps.get(absoluteWatchFile);
+            const newTimestamp = compilation.fileSystemInfo._fileTimestamps.get(absoluteWatchFile);
 
             return (
               (lastTimestamp || this.startTime) <
