@@ -5,13 +5,31 @@ const plugin = require('../src/index.js');
 const webpack = require('webpack');
 const config = require('./test-project/webpack.config.js');
 const promisify = require('util').promisify;
+const MemoryFs = require('memory-fs');
+const testFilesystem = require('./testfs.js');
 
 /*
- * Set up MemFS for in-memory filesystem testing.
+ * Set up `fs` object for Webpack 4 and Webpack 5.
+ * This has changed slightly between Webpack 4 and Webpack 5 so must be
+ * handled accordingly.
  */
 const testFilesystem = require('./testfs.js');
 const fs = createFsFromVolume(Volume.fromJSON(testFilesystem));
 fs.join = path.join // Workaround for memfs issue #404 (actually a Webpack issue).
+const fs = (() => {
+  if (WEBPACK_VERSION === 4) {
+    // Webpack 4
+    const memoryFs = new MemoryFs();
+    Object.keys(testFilesystem).forEach((testFilesystemKey) => {
+      memoryFs.mkdirpSync(path.dirname(testFilesystemKey));
+      memoryFs.writeFileSync(testFilesystemKey, testFilesystem[testFilesystemKey], 'utf8');
+    });
+    return memoryFs;
+  }
+  else {
+    // Webpack 5
+  }
+})();
 
 describe('webpack-concat-files-plugin', function() {
 
@@ -103,6 +121,8 @@ console.log('B');
         const compiler = webpack(config);
         compiler.inputFileSystem = fs;
         compiler.outputFileSystem = fs;
+        compiler.resolvers.normal.fileSystem = compiler.inputFileSystem;
+        compiler.resolvers.context.fileSystem = compiler.inputFileSystem;
         watching = compiler.watch({
           aggregateTimeout: 300,
           poll: undefined,
