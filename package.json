@@ -4,7 +4,7 @@
   "description": "Concatenate and transform files using Webpack",
   "main": "index.js",
   "repository": "https://github.com/damorej-at-theinstitutes/webpack-concat-files-plugin.git",
-  "author": "AICPCU\\damorej <damorej@theinstitutes.org>",
+  "author": "The Institutes <damorej@theinstitutes.org>",
   "license": "MIT",
   "private": false,
   "dependencies": {
@@ -12,7 +12,7 @@
     "webpack-sources": "^1.4.3"
   },
   "peerDependencies": {
-    "webpack": "4"
+    "webpack": "4.x || 5.x"
   },
   "keywords": [
     "webpack",
