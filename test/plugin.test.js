@@ -1,11 +1,17 @@
-//const { createFsFromVolume, Volume } = require('memfs');
-//const fs = createFsFromVolume(new Volume());
+const { createFsFromVolume, Volume } = require('memfs');
+const path = require('path');
 const expect = require('chai').expect;
 const plugin = require('../src/index.js');
 const webpack = require('webpack');
 const config = require('./test-project/webpack.config.js');
 const promisify = require('util').promisify;
-const fs = require('fs');
+
+/*
+ * Set up MemFS for in-memory filesystem testing.
+ */
+const testFilesystem = require('./testfs.js');
+const fs = createFsFromVolume(Volume.fromJSON(testFilesystem));
+fs.join = path.join // Workaround for memfs issue #404 (actually a Webpack issue).
 
 describe('webpack-concat-files-plugin', function() {
 
@@ -18,7 +24,10 @@ describe('webpack-concat-files-plugin', function() {
       // Run Webpack once, and use tests to examine results.
       before(function(done) {
         this.timeout(WEBPACK_TIMEOUT);
-        webpack(config, function(err, stats) {
+        const compiler = webpack(config);
+        compiler.inputFileSystem = fs;
+        compiler.outputFileSystem = fs;
+        compiler.run(function(err, stats) {
           result_err = err;
           result_stats = stats;
           done();
@@ -92,6 +101,8 @@ console.log('B');
       beforeEach(function(done) {
         this.timeout(WEBPACK_TIMEOUT);
         const compiler = webpack(config);
+        compiler.inputFileSystem = fs;
+        compiler.outputFileSystem = fs;
         watching = compiler.watch({
           aggregateTimeout: 300,
           poll: undefined,
