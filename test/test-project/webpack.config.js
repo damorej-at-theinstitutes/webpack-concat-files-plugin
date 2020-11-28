@@ -9,7 +9,9 @@ const ConcatFilesPlugin = require('../../src/index.js');
  */
 module.exports = {
   mode: 'production',
-  entry: path.resolve(__dirname, 'src/index.js'),
+  entry: {
+    main: path.resolve(__dirname, 'src', 'index.js'),
+  },
   name: 'test-project',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -20,12 +22,12 @@ module.exports = {
       bundles: [
         // Basic concatenation.
         {
-          source: path.resolve(__dirname, 'src/concat-files/a/**/*.js'),
+          source: path.resolve(__dirname, './src/concat-files/a/**/*.js'),
           destination: path.resolve(__dirname, 'dist/concat-files/concat-a.js'),
         },
         // Test `transforms` property.
         {
-          source: path.resolve(__dirname, 'src/concat-files/b/**/*.js'),
+          source: path.resolve(__dirname, './src/concat-files/b/**/*.js'),
           destination: path.resolve(__dirname, 'dist/concat-files/concat-b.js'),
           transforms: {
             before: (content, filepath) => {
