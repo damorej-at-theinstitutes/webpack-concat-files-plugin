@@ -1,6 +1,7 @@
 const { createFsFromVolume, Volume } = require('memfs');
 const path = require('path');
-const expect = require('chai').expect;
+const chai = require('chai');
+const expect = chai.expect;
 const plugin = require('../src/index.js');
 const webpack = require('webpack');
 const config = require('./test-project/webpack.config.js');
@@ -13,9 +14,6 @@ const testFilesystem = require('./testfs.js');
  * This has changed slightly between Webpack 4 and Webpack 5 so must be
  * handled accordingly.
  */
-const testFilesystem = require('./testfs.js');
-const fs = createFsFromVolume(Volume.fromJSON(testFilesystem));
-fs.join = path.join // Workaround for memfs issue #404 (actually a Webpack issue).
 const fs = (() => {
   if (WEBPACK_VERSION === 4) {
     // Webpack 4
@@ -113,8 +111,12 @@ console.log('B');
 
     describe('watch mode', function() {
       let watching;
+      let compiler;
       let result_err;
-      let result_stat;
+      let result_stats;
+
+      const subsequentRunCallback = () => {
+      };
 
       beforeEach(function(done) {
         this.timeout(WEBPACK_TIMEOUT);
@@ -127,9 +129,15 @@ console.log('B');
           aggregateTimeout: 300,
           poll: undefined,
         }, function(err, stats) {
+          const firstRun = (!result_err && !result_stats);
           result_err = err;
           result_stats = stats;
-          done();
+          if (firstRun) {
+            done();
+          }
+          else {
+            subsequentRunCallback();
+          }
         });
       });
 
@@ -147,8 +155,9 @@ console.log('B');
         this.timeout(WEBPACK_TIMEOUT);
         watching.close(function() {
           watching = undefined;
+          compiler = undefined;
           result_err = undefined;
-          result_stat = undefined;
+          result_stats = undefined;
           done();
         });
       });
