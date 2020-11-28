@@ -2,7 +2,7 @@
   "name": "webpack-concat-files-plugin",
   "version": "0.4.2",
   "description": "Concatenate and transform files using Webpack",
-  "main": "index.js",
+  "main": "src/index.js",
   "repository": "https://github.com/damorej-at-theinstitutes/webpack-concat-files-plugin.git",
   "author": "The Institutes <damorej@theinstitutes.org>",
   "license": "MIT",
