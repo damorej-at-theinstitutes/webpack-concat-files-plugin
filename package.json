@@ -11,6 +11,10 @@
     "globby": "^10.0.1",
     "webpack-sources": "^1.4.3"
   },
+  "devDependencies": {
+    "webpack4": "npm:webpack@^4.44.2",
+    "webpack5": "npm:webpack@^5.8.0"
+  },
   "peerDependencies": {
     "webpack": "4.x || 5.x"
   },
