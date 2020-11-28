@@ -54,7 +54,7 @@ const terser = require('terser');
 const WebpackConcatPlugin = require('webpack-concat-files-plugin');
 
 const webpackConfig = {
-  ...
+  // ...
   plugins: [
     new WebpackConcatPlugin({
       bundles: [
