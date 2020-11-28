@@ -1,8 +1,11 @@
+//const { createFsFromVolume, Volume } = require('memfs');
+//const fs = createFsFromVolume(new Volume());
 const expect = require('chai').expect;
 const plugin = require('../src/index.js');
 const webpack = require('webpack');
 const config = require('./test-project/webpack.config.js');
 const promisify = require('util').promisify;
+const fs = require('fs');
 
 describe('webpack-concat-files-plugin', function() {
 
@@ -30,6 +33,11 @@ describe('webpack-concat-files-plugin', function() {
       // Confirm that Webpack compilation returns a `stats` object.
       it('should return a `stats` object', function() {
         expect(result_stats).to.not.be.an('undefined');
+      });
+
+      // Confirm that `stats` object does not have any errors.
+      it('should not list any errors in the `stats` object', function() {
+        expect(result_stats.hasErrors()).to.be.false;
       });
 
       // Confirm that each concatenated file bundle was listed in compilation asset array.
