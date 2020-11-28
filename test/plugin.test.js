@@ -120,7 +120,7 @@ console.log('B');
 
       beforeEach(function(done) {
         this.timeout(WEBPACK_TIMEOUT);
-        const compiler = webpack(config);
+        compiler = webpack(config);
         compiler.inputFileSystem = fs;
         compiler.outputFileSystem = fs;
         compiler.resolvers.normal.fileSystem = compiler.inputFileSystem;
