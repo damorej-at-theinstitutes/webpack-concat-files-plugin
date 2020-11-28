@@ -89,5 +89,5 @@ The object specified for each `transforms` bundle property can contain any of th
 ## Contributors
 Special thanks to everybody who's contributed to this project!
 
-| [@davidwarrington](https://github.com/davidwarrington) | [@Iszacsuri](https://github.com/lszacsuri) |
-|-|-|
+| [@davidwarrington](https://github.com/davidwarrington) | [@Iszacsuri](https://github.com/lszacsuri) | [@jarrettgreen](https://github.com/jarrettgreen)
+|-|-|-|
