@@ -1,0 +1,18 @@
+{
+  "name": "webpack4-concat-files-plugin-tests",
+  "version": "0.1.0",
+  "description": "Test Webpack 4 project for webpack-concat-files-plugin",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "test": "npx mocha ../test/**/*.test.js --require ./setup.js"
+  },
+  "author": "The Institutes <damorej@theinstitutes.org>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "webpack": "npm:webpack@^4.44.2"
+  }
+}
