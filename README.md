@@ -75,16 +75,16 @@ The `options` object can contain the following properties:
 ### Bundles
 Each object specified in the `bundles` array can contain the following properties:
 
-* `destination`: (_String_) Output path for concatenated file.
-* `source`: (_String_ or _Array_) Glob string or array of glob strings describing files to concatenate.
-* `transforms`: (_Object_) Object describing transformations of concatenated files. (Optional)
-* `encoding`: (_String_) Encoding to use when reading files. (Optional, default `'utf8'`)
+* `bundle.destination`: (_String_) Output path for concatenated file.
+* `bundle.source`: (_String_ or _Array_) Glob string or array of glob strings describing files to concatenate.
+* `bundle.transforms`: (_Object_) Object describing transformations of concatenated files. (Optional)
+* `bundle.encoding`: (_String_) Encoding to use when reading files. (Optional, default `'utf8'`)
 
 ### Transforms
 The object specified for each `transforms` bundle property can contain any of the following properties:
 
-* `before(content, filepath)`: (_Callback_) Function to apply changes to file contents before concatenation. Accepts two string parameters: the contents of the file being concatenated, and the path to the source file being concatenated. The string returned by this function is used for the concatenated output. (Optional)
-* `after(content)`: (_Callback_) Function to apply changes to file contents after concatenation. Accepts a single string parameter containing the contents of the concatenated files, and the string returned by this function is used as the final concatenation output. (Optional)
+* `transform.before(content, filepath)`: (_Callback_) Function to apply changes to file contents before concatenation. Accepts two string parameters: the contents of the file being concatenated, and the path to the source file being concatenated. The string returned by this function is used for the concatenated output. (Optional)
+* `transform.after(content)`: (_Callback_) Function to apply changes to file contents after concatenation. Accepts a single string parameter containing the contents of the concatenated files, and the string returned by this function is used as the final concatenation output. (Optional)
 
 ## Contributors
 Special thanks to everybody who's contributed to this project!
