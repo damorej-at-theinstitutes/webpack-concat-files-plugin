@@ -12,6 +12,8 @@
     "webpack-sources": "^1.4.3"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
     "webpack4": "npm:webpack@^4.44.2",
     "webpack5": "npm:webpack@^5.8.0"
   },
