@@ -25,8 +25,8 @@ const webpackConfig = {
     new WebpackConcatPlugin({
       bundles: [
         {
-          destination: './dist/polyfills.min.js',
-          source: './scripts/polyfills/**/*.js',
+          dest: './dist/polyfills.min.js',
+          src: './scripts/polyfills/**/*.js',
         },
       ],
     }),
@@ -51,8 +51,8 @@ const webpackConfig = {
     new WebpackConcatPlugin({
       bundles: [
         {
-          destination: './dist/polyfills.min.js',
-          source: './scripts/polyfills/**/*.js',
+          dest: './dist/polyfills.min.js',
+          src: './scripts/polyfills/**/*.js',
           transforms: {
             after: (code) => {
               return terser.minify(code).code;
