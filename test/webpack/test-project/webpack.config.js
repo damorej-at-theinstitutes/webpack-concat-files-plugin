@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const ConcatFilesPlugin = require('../../src/index.js');
+const ConcatFilesPlugin = require('../../../src/index.js');
 
 /**
  * Basic Webpack configuration that works for v4 and v5.

@@ -2,7 +2,7 @@ const { createFsFromVolume, Volume } = require('memfs');
 const path = require('path');
 const chai = require('chai');
 const expect = chai.expect;
-const plugin = require('../src/index.js');
+const plugin = require('../../src/index.js');
 const webpack = require('webpack');
 const config = require('./test-project/webpack.config.js');
 const promisify = require('util').promisify;
@@ -149,6 +149,36 @@ console.log('B');
       // Confirm that Webpack compilation returns a `stats` object.
       it('should return a `stats` object', function() {
         expect(result_stats).to.not.be.an('undefined');
+      });
+
+      it('bleh?', function(done) {
+        this.timeout(WEBPACK_TIMEOUT + 1000);
+        const delPath = path.resolve(__dirname, './test-project/src/concat-files/a/1.js');
+        const delPath2 = path.resolve(__dirname, './test-project/src/concat-files/a/2.js');
+
+        //watching.run();
+
+        const testFilesystem = require('./testfs.js');
+        const nfs = createFsFromVolume(Volume.fromJSON(testFilesystem));
+        console.log(fs.existsSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js')));
+        console.log(fs.existsSync(delPath));
+        //fs.unlinkSync(path.resolve(__dirname, './test-project/src/index.js'));
+        fs.unlinkSync(delPath);
+        fs.unlinkSync(delPath2);
+        fs.writeFileSync(path.resolve(__dirname, './test-project/src/concat-files/b/1.js'), 'console.log(\'AAA\');');
+        fs.writeFileSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js'), 'loser');
+        console.log(fs.existsSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js')));
+        console.log(fs.existsSync(delPath));
+        watching.invalidate();
+
+        setTimeout(() => {
+          //console.log(nfs.readFileSync(path.resolve(__dirname, './test-project/dist/concat-files/concat-a.js'), 'utf8'));
+          //console.log(result_stats);
+          console.log(result_stats.compilation.assets);
+          done();
+        }, 5000)
+        //expect(run_spy).to.have.been.called;
+        //expect(true).to.be.true;
       });
 
       afterEach(function(done) {

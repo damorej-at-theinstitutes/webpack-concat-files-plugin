@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node .",
-    "webpack": "npx webpack --config='../test/test-project/webpack.config.js'",
-    "test": "NODE_PATH='./node_modules' npx mocha ../test/**/*.test.js --require ./setup.js"
+    "webpack": "npx webpack --config='../test/webpack/test-project/webpack.config.js'",
+    "test": "NODE_PATH='./node_modules' npx mocha ../test/webpack/**/*.test.js --require ./setup.js"
   },
   "author": "The Institutes <damorej@theinstitutes.org>",
   "license": "MIT",
