@@ -15,6 +15,7 @@
   "private": false,
   "dependencies": {
     "globby": "^10.0.1",
+    "schema-utils": "^3.0.0",
     "webpack-sources": "^1.4.3"
   },
   "peerDependencies": {
