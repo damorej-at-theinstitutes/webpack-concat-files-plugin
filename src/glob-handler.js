@@ -12,6 +12,7 @@ class GlobHandler {
    * @param {string|array} globs - A glob string, or an array of glob strings.
    */
   constructor(globs) {
+    /// Array of glob strings.
     this.globs = (() => {
       if (!globs) {
         return [];
