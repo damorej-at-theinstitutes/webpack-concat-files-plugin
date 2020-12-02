@@ -25,6 +25,39 @@ class GlobHandler {
   }
 
   /**
+   * Resolves to an array of paths to files included by this glob.
+   *
+   * @returns {string[]} Array of paths to files included in this glob.
+   */
+  async getPaths() {
+    return await globby(this.globs);
+  }
+
+  /**
+   * Resolves to an array of file and directory paths included by this glob.
+   *
+   * @returns {string[]} Array of file and directory paths.
+   */
+  async getPathsWithDirectories() {
+    const filePaths = await this.getPaths();
+    const dirPaths = filePaths
+      .map((filePath) => {
+        return path.dirname(filePath)
+      })
+      .reduce((acc, cur) => {
+        if (!acc.includes(cur)) {
+          acc.push(cur);
+        }
+        return acc;
+      }, [])
+
+    return [
+      ...dirPaths,
+      ...filePaths,
+    ];
+  }
+
+  /**
    * Resolves to an array of ConcatenationItems.
    *
    * Each ConcatenationItem instance corresponds to a file included in this
