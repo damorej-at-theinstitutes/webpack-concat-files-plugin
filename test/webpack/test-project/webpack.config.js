@@ -22,13 +22,13 @@ module.exports = {
       bundles: [
         // Basic concatenation.
         {
-          source: path.resolve(__dirname, './src/concat-files/a/**/*.js'),
-          destination: path.resolve(__dirname, 'dist/concat-files/concat-a.js'),
+          src: path.resolve(__dirname, './src/concat-files/a/**/*.js'),
+          dest: path.resolve(__dirname, 'dist/concat-files/concat-a.js'),
         },
         // Test `transforms` property.
         {
-          source: path.resolve(__dirname, './src/concat-files/b/**/*.js'),
-          destination: path.resolve(__dirname, 'dist/concat-files/concat-b.js'),
+          src: path.resolve(__dirname, './src/concat-files/b/**/*.js'),
+          dest: path.resolve(__dirname, 'dist/concat-files/concat-b.js'),
           transforms: {
             before: (content, filepath) => {
               return `/* COMMENT */${content}`;
@@ -45,8 +45,8 @@ module.exports = {
       bundles: [
         {
           // Test `separator` property.
-          source: path.resolve(__dirname, 'src/concat-files/c/**/*.js'),
-          destination: path.resolve(__dirname, 'dist/concat-files/concat-c.js'),
+          src: path.resolve(__dirname, 'src/concat-files/c/**/*.js'),
+          dest: path.resolve(__dirname, 'dist/concat-files/concat-c.js'),
         },
       ],
     }),
