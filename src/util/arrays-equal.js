@@ -1,19 +1,18 @@
 /**
  * Determines if two arrays have the same values.
  *
- * Only applicable with arrays which contain basic types.
+ * Only applicable with arrays which contain primitive types.
  */
 const arraysEqual = (a, b) => {
   if (a.length !== b.length) {
     return false;
   }
-  const aExtra = a.some((value) => {
-    return !(b.includes(value));
-  });
-  const bExtra = b.some((value) => {
-    return !(a.includes(value));
-  });
-  return !(aExtra || bExtra);
+  for (let i = 0; i < a.length; i += 1) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 module.exports = arraysEqual;
