@@ -130,7 +130,7 @@ class WebpackConcatenateFilesPlugin {
         const promises = bundles.map(async (bundle) => {
           const { transforms, encoding = 'utf8' } = bundle;
           // TODO Remove conditional and warning when `source` and 'destination' options are removed.
-          if (bundle.source || bundle.destination) {
+          if ((bundle.source || bundle.destination) && fileTracker.isFirstRun()) {
             logger.warn(`The 'bundle.source' and 'bundle.destination' options have been deprecated and will be removed. Use 'bundle.src' and 'bundle.dest' instead.`);
           }
           // TODO Remove conditional assignment once `source` and `destination` options are removed.
