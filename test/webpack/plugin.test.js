@@ -109,88 +109,88 @@ console.log('B');
       });
     });
 
-    describe('watch mode', function() {
-      let watching;
-      let compiler;
-      let result_err;
-      let result_stats;
-
-      const subsequentRunCallback = () => {
-      };
-
-      beforeEach(function(done) {
-        this.timeout(WEBPACK_TIMEOUT);
-        compiler = webpack(config);
-        compiler.inputFileSystem = fs;
-        compiler.outputFileSystem = fs;
-        compiler.resolvers.normal.fileSystem = compiler.inputFileSystem;
-        compiler.resolvers.context.fileSystem = compiler.inputFileSystem;
-        watching = compiler.watch({
-          aggregateTimeout: 300,
-          poll: undefined,
-        }, function(err, stats) {
-          const firstRun = (!result_err && !result_stats);
-          result_err = err;
-          result_stats = stats;
-          if (firstRun) {
-            done();
-          }
-          else {
-            subsequentRunCallback();
-          }
-        });
-      });
-
-      // Confirm that Webpack compilation does not result in an error.
-      it('should not error', function() {
-        expect(result_err).to.be.a('null');
-      });
-
-      // Confirm that Webpack compilation returns a `stats` object.
-      it('should return a `stats` object', function() {
-        expect(result_stats).to.not.be.an('undefined');
-      });
-
-      it('bleh?', function(done) {
-        this.timeout(WEBPACK_TIMEOUT + 1000);
-        const delPath = path.resolve(__dirname, './test-project/src/concat-files/a/1.js');
-        const delPath2 = path.resolve(__dirname, './test-project/src/concat-files/a/2.js');
-
-        //watching.run();
-
-        const testFilesystem = require('./testfs.js');
-        const nfs = createFsFromVolume(Volume.fromJSON(testFilesystem));
-        console.log(fs.existsSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js')));
-        console.log(fs.existsSync(delPath));
-        //fs.unlinkSync(path.resolve(__dirname, './test-project/src/index.js'));
-        fs.unlinkSync(delPath);
-        fs.unlinkSync(delPath2);
-        fs.writeFileSync(path.resolve(__dirname, './test-project/src/concat-files/b/1.js'), 'console.log(\'AAA\');');
-        fs.writeFileSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js'), 'loser');
-        console.log(fs.existsSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js')));
-        console.log(fs.existsSync(delPath));
-        watching.invalidate();
-
-        setTimeout(() => {
-          //console.log(nfs.readFileSync(path.resolve(__dirname, './test-project/dist/concat-files/concat-a.js'), 'utf8'));
-          //console.log(result_stats);
-          console.log(result_stats.compilation.assets);
-          done();
-        }, 5000)
-        //expect(run_spy).to.have.been.called;
-        //expect(true).to.be.true;
-      });
-
-      afterEach(function(done) {
-        this.timeout(WEBPACK_TIMEOUT);
-        watching.close(function() {
-          watching = undefined;
-          compiler = undefined;
-          result_err = undefined;
-          result_stats = undefined;
-          done();
-        });
-      });
-    });
+//    describe('watch mode', function() {
+//      let watching;
+//      let compiler;
+//      let result_err;
+//      let result_stats;
+//
+//      const subsequentRunCallback = () => {
+//      };
+//
+//      beforeEach(function(done) {
+//        this.timeout(WEBPACK_TIMEOUT);
+//        compiler = webpack(config);
+//        compiler.inputFileSystem = fs;
+//        compiler.outputFileSystem = fs;
+//        compiler.resolvers.normal.fileSystem = compiler.inputFileSystem;
+//        compiler.resolvers.context.fileSystem = compiler.inputFileSystem;
+//        watching = compiler.watch({
+//          aggregateTimeout: 300,
+//          poll: undefined,
+//        }, function(err, stats) {
+//          const firstRun = (!result_err && !result_stats);
+//          result_err = err;
+//          result_stats = stats;
+//          if (firstRun) {
+//            done();
+//          }
+//          else {
+//            subsequentRunCallback();
+//          }
+//        });
+//      });
+//
+//      // Confirm that Webpack compilation does not result in an error.
+//      it('should not error', function() {
+//        expect(result_err).to.be.a('null');
+//      });
+//
+//      // Confirm that Webpack compilation returns a `stats` object.
+//      it('should return a `stats` object', function() {
+//        expect(result_stats).to.not.be.an('undefined');
+//      });
+//
+//      it('bleh?', function(done) {
+//        this.timeout(WEBPACK_TIMEOUT + 1000);
+//        const delPath = path.resolve(__dirname, './test-project/src/concat-files/a/1.js');
+//        const delPath2 = path.resolve(__dirname, './test-project/src/concat-files/a/2.js');
+//
+//        //watching.run();
+//
+//        const testFilesystem = require('./testfs.js');
+//        const nfs = createFsFromVolume(Volume.fromJSON(testFilesystem));
+//        console.log(fs.existsSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js')));
+//        console.log(fs.existsSync(delPath));
+//        //fs.unlinkSync(path.resolve(__dirname, './test-project/src/index.js'));
+//        fs.unlinkSync(delPath);
+//        fs.unlinkSync(delPath2);
+//        fs.writeFileSync(path.resolve(__dirname, './test-project/src/concat-files/b/1.js'), 'console.log(\'AAA\');');
+//        fs.writeFileSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js'), 'loser');
+//        console.log(fs.existsSync(path.resolve(__dirname, './test-project/src/concat-files/a/4.js')));
+//        console.log(fs.existsSync(delPath));
+//        watching.invalidate();
+//
+//        setTimeout(() => {
+//          //console.log(nfs.readFileSync(path.resolve(__dirname, './test-project/dist/concat-files/concat-a.js'), 'utf8'));
+//          //console.log(result_stats);
+//          console.log(result_stats.compilation.assets);
+//          done();
+//        }, 5000)
+//        //expect(run_spy).to.have.been.called;
+//        //expect(true).to.be.true;
+//      });
+//
+//      afterEach(function(done) {
+//        this.timeout(WEBPACK_TIMEOUT);
+//        watching.close(function() {
+//          watching = undefined;
+//          compiler = undefined;
+//          result_err = undefined;
+//          result_stats = undefined;
+//          done();
+//        });
+//      });
+//    });
   });
 });
