@@ -1,4 +1,5 @@
 const globby = require('globby');
+const path = require('path');
 const ConcatenationItem = require('./concatenation-item.js');
 
 /**
@@ -61,14 +62,16 @@ class GlobHandler {
    * Resolves to an array of ConcatenationItems.
    *
    * Each ConcatenationItem instance corresponds to a file included in this
-   * `globs`.
+   * glob.
+   *
+   * @param {string} encoding - Encoding to use for file loading.
    *
    * @returns {Promise} Promise resolving to array of ConcatenationItems.
    */
-  async getConcatenationItems() {
-    const filepaths = await globby(this.globs);
+  async getConcatenationItems(encoding) {
+    const filepaths = await this.getPaths();
     const loadPromises = filepaths.map((filepath) => {
-      return ConcatenationItem.loadFromFile(filepath, 'utf8');
+      return ConcatenationItem.loadFromFile(filepath, encoding);
     });
     return Promise.all(loadPromises);
   }
