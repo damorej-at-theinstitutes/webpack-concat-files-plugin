@@ -1,3 +1,5 @@
+const promisify = require('util').promisify;
+
 /**
  * Determine if a file is accessible asynchronously.
  *

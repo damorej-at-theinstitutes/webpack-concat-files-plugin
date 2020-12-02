@@ -1,3 +1,5 @@
+const promisify = require('util').promisify;
+
 /**
  * Determines if the given filepath is a directory.
  *
