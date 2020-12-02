@@ -1,297 +1,191 @@
-const fs = require('fs');
-const globby = require('globby');
+const ConcatenationHandler = require('./concatenation-handler.js');
+const FileTracker = require('./file-tracker.js');
+const FileTrackerInterfaceWebpack4 = require('./file-tracker-interface-webpack4.js');
+const FileTrackerInterfaceWebpack5 = require('./file-tracker-interface-webpack5.js');
+const GlobHandler = require('./glob-handler.js');
+const GlobTracker = require('./glob-tracker.js');
+const optionsSchema = require('./options-schema.js');
 const path = require('path');
-const promisify = require('util').promisify;
 const { RawSource } = require('webpack-sources');
+const { validate } = require('schema-utils');
 
-// Promisified fs functions.
-const readFilePromise = promisify(fs.readFile);
+// Plugin name.
+const PLUGIN_NAME = 'WebpackConcatenateFilesPlugin';
 
+/**
+ * Concatenates specified files during Webpack compilation.
+ */
 class WebpackConcatenateFilesPlugin {
 
   /**
    * Constructor.
    *
-   * Retrieves options and binds apply method.
+   * Validates and applies plugin options.
    *
-   * @param {Object} options - Plugin options.
+   * @param {Object} options - Webpack plugin options.
    */
-  constructor(options) {
+  constructor(options = {}) {
+    validate(optionsSchema, options, PLUGIN_NAME);
     this.options = options;
-    this.watchers = null;
-
-    // Timestamp tracking.
-    this.firstRun = true;
-    this.startTime = Date.now();
-    this.prevTimestamps = null;
-    this.prevAssets = null;
-
-    // Bind apply function.
-    this.apply = this.apply.bind(this);
   }
 
   /**
-   * Applies concatenation for specified bundles.
+   * Applies the plugin for Webpack compilation.
    *
-   * @param {Object} compiler - Webpack compiler object.
+   * This is called once per Webpack execution, and allows the plugin to tap
+   * into necessary event hooks.
+   *
+   * @param {Object} compiler - Webpack compiler instance.
    */
-  async apply(compiler) {
-    const { bundles, separator = '\n', allowWatch = true } = this.options;
-    const plugin = this;
+  apply(compiler) {
+    const {
+      bundles,
+      separator = '\n',
+      allowWatch = true,
+      allowOptimization = false,
+    } = this.options;
+    const self = this;
+    const logger = compiler.getInfrastructureLogger(PLUGIN_NAME);
+    const globTracker = new GlobTracker();
+    let fileTracker;
 
-    compiler.hooks.emit.tapAsync(
-      'WebpackConcatenateFilesPlugin',
-      async (compilation, callback) => {
+    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation, compilationParams) => {
+
+      /**
+       * Determines whether Webpack 4 or 5 is being used.
+       *
+       * This is probably a naive way to determine Webpack version; update this
+       * if a better solution becomes apparent.
+       *
+       * @returns {number} Major Webpack version being used.
+       */
+      const WEBPACK_VERSION = (() => {
+        if (compilation.fileTimestamps) {
+          return 4;
+        }
+        return 5;
+      })();
+
+      /**
+       * Determines which compilation hook to use.
+       *
+       * Webpack 4 should use `additionalAssets` whereas Webpack 5 should use
+       * `processAssets`.
+       *
+       * @returns {Object} Webpack compilation hook.
+       */
+      const ASSET_HOOK = (() => {
+        if (WEBPACK_VERSION > 4) {
+          return compilation.hooks.processAssets;
+        }
+        return compilation.hooks.additionalAssets;
+      })();
+
+      /**
+       * Determines the first parameter value for the compilation hook.
+       *
+       * @returns {Object|string} Compilation hook parameter value.
+       */
+      const ASSET_HOOK_PARAM = (() => {
+        if (WEBPACK_VERSION > 4) {
+          return {
+            name: PLUGIN_NAME,
+            stage: compilation.PROCESS_ASSETS_STAGE_PRE_PROCESS,
+          };
+        }
+        return PLUGIN_NAME;
+      })();
+
+      /**
+       * Creates or gets a file tracker instance to use throughout compilation.
+       *
+       * If a FileTracker instance was already created during a previous run,
+       * it continues to be used.
+       *
+       * Depending on which version of Webpack is running, a different
+       * interface is assigned to handle version-specific file tracking
+       * operations.
+       *
+       * @returns {Object} FileTracker instance.
+       */
+      fileTracker = (() => {
+        if (fileTracker) {
+          return fileTracker;
+        }
+        const fileTrackerInterface = (WEBPACK_VERSION > 4) ? FileTrackerInterfaceWebpack5 : FileTrackerInterfaceWebpack4;
+        return new FileTracker(compiler, new fileTrackerInterface());
+      })();
+
+      ASSET_HOOK.tapAsync(ASSET_HOOK_PARAM, async (p1, p2) => {
         /*
-         * Determine which files have changed since the last run.
-         * Only applicable when Webpack is in watch mode.
+         * This function's signature differs depending on which hook is used.
+         * Assign the parameters to constants with sensible names depending on
+         * availability.
          */
-        const changedFiles = Array
-          .from(compilation.fileTimestamps.keys())
-          .filter((watchFile) => {
-            if (!plugin.prevTimestamps) {
-              return true;
+        const callback = (p2 ? p2 : p1);
+        const assets = (p2 ? p1 : compilation.assets);
+
+        await fileTracker.run(compilation);
+
+        const promises = bundles.map(async (bundle) => {
+          const { transforms, encoding = 'utf8' } = bundle;
+          // TODO Remove conditional and warning when `source` and 'destination' options are removed.
+          if (bundle.source || bundle.destination) {
+            logger.warn(`The 'bundle.source' and 'bundle.destination' options have been deprecated and will be removed. Use 'bundle.src' and 'bundle.dest' instead.`);
+          }
+          // TODO Remove conditional assignment once `source` and `destination` options are removed.
+          const src = bundle.src || bundle.source;
+          const dest = bundle.dest || bundle.destination;
+
+          const globHandler = new GlobHandler(src);
+          const concatHandler = new ConcatenationHandler(separator, transforms);
+          const concatPaths = await globHandler.getPathsWithDirectories();
+          globTracker.set(dest, concatPaths);
+
+          if (allowWatch) {
+            fileTracker.createWatchers(concatPaths, compilation);
+          }
+
+          const bundleFilesAbsolute = concatPaths.map((bundleFile) => {
+            if (!path.isAbsolute(bundleFile)) {
+              return path.resolve(compiler.options.context, bundleFile);
             }
-            const absoluteWatchFile = path.resolve(compiler.options.context, watchFile);
-
-            const lastTimestamp = plugin.prevTimestamps.get(absoluteWatchFile);
-            const newTimestamp = compilation.fileTimestamps.get(absoluteWatchFile);
-
-            return (
-              (lastTimestamp || this.startTime) <
-              (newTimestamp || Infinity)
-            );
-          })
-          .filter((watchFile) => {
-            return fs.existsSync(watchFile) && !fs.lstatSync(watchFile).isDirectory();
+            return bundleFile;
           });
 
-        await Promise.all(
-          bundles
-            .map(async bundle => {
-              const filepaths = await this.getPathsForSource(bundle.source);
+          const bundleHasChanged = fileTracker.getChangedFiles().some((changedFile) => {
+            const changedFileAbsolute = path.resolve(compiler.options.context, changedFile);
+            return bundleFilesAbsolute.includes(changedFileAbsolute);
+          });
 
-              /*
-               * Determine if any of the source files for this bundle
-               * have changed.
-               */
-              const bundleFilesAbsolute = filepaths.map((bundleFile) => {
-                if (!path.isAbsolute(bundleFile)) {
-                  return path.resolve(compiler.options.context, bundleFile);
-                }
-                return bundleFile;
-              });
+          const changedBundleFiles = concatPaths.filter((filepath) => {
+            return fileTracker.getChangedFiles().includes(filepath);
+          });
 
-              const bundleHasChange = changedFiles.some((changedFile) => {
-                const changedFileAbsolute = path.resolve(compiler.options.context, changedFile);
-                return bundleFilesAbsolute.includes(changedFileAbsolute);
-              });
+          // No files within this bundle have changed; short-circuit.
+          if (!globTracker.hasChanged(dest) && !changedBundleFiles.length && !fileTracker.isFirstRun()) {
+            return;
+          }
 
-              if (allowWatch) {
-                this.createWatchers(filepaths, compiler, compilation);
-              }
+          const concatItems = await globHandler.getConcatenationItems(encoding);
+          const concatAsset = await concatHandler.concatenate(concatItems);
+          const concatKey = path.relative(compiler.options.output.path, dest);
 
-              /*
-               * Short-circuit if bundle does not have any files that have
-               * changed, emitting the existing asset from the previous run.
-               */
-              if (!bundleHasChange && !plugin.firstRun) {
-                const outputKey = path.relative(compiler.options.output.path, bundle.destination);
-                compilation.assets[outputKey] = this.prevAssets[outputKey];
-                return;
-              }
+          /*
+           * If `allowOptimization` is false, set the asset info's `minimized`
+           * property to `true` to prevent further minification/optimization.
+           */
+          compilation.emitAsset(concatKey, new RawSource(concatAsset), {
+            minimized: !allowOptimization,
+          });
+        });
 
-              const outputKey = path.relative(compiler.options.output.path, bundle.destination);
-              const concatenatedBundle = await this.concatenateBundle(bundle, separator);
-
-              compilation.assets[outputKey] = new RawSource(concatenatedBundle);
-
-              // Log output message if in watch mode and not on first run.
-              const logger = (() => {
-                if (!compiler.watchMode || plugin.firstRun) {
-                  return null;
-                }
-                if (!compiler.getInfrastructureLogger) {
-                  return console;
-                }
-                return compiler.getInfrastructureLogger("webpack-concat-files-plugin");
-              })();
-
-              if (logger) {
-                logger.info(`Concatenated '${outputKey}'`);
-              }
-            })
-        );
-
-        plugin.prevAssets = compilation.assets;
-        plugin.prevTimestamps = compilation.fileTimestamps;
-        plugin.firstRun = false;
+        await Promise.all(promises);
+        globTracker.reset();
+        fileTracker.reset(compilation);
         callback();
-      }
-    );
-  }
-
-  /**
-   * Add source file directories and inidividual files to dependencies list.
-   * Triggers Webpack to recompile when updates occur.
-   *
-   * @param {String[]} filepaths - Relative filepaths for source files.
-   * @param {Object} compiler - Webpack compiler object.
-   * @param {Object} compilation - Webpack compilation object.
-   */
-  createWatchers(filepaths, compiler, compilation) {
-    let dirnames = new Set();
-    filepaths.forEach(filepath => {
-      const absolutePath = path.resolve(compiler.options.context, filepath);
-      if (!compilation.fileDependencies.has(absolutePath)) {
-        compilation.fileDependencies.add(absolutePath);
-      }
-
-      dirnames.add(path.dirname(filepath));
+      });
     });
-
-    dirnames.forEach(dirname => {
-      if (!compilation.contextDependencies.has(dirname)) {
-        compilation.contextDependencies.add(path.resolve(compiler.options.context, dirname));
-      }
-    });
-  }
-
-  /**
-   * Performs concatenation for the given bundle.
-   *
-   * @param {Object} bundle - Object representing bundle to concatenate.
-   * @param {string} separator - String to use to separate concatenated content.
-   */
-  async concatenateBundle(bundle, separator = '\n') {
-    const { source, transforms, encoding = 'utf8' } = bundle;
-    const paths = await this.getPathsForSource(source);
-
-    /*
-     * Retrieve an array of objects describing the path and contents of
-     * each file in paths.
-     */
-    const contentObjects = await Promise.all(
-      // Transform paths into objects containing path and file read promise.
-      paths.map((path) => {
-        return this.getContentObjectForPath(path, encoding);
-      })
-      // Perform "before" transformations, if specified.
-      .map((contentObject) => {
-        return this.getTransformedContentObject(contentObject, transforms);
-      })
-      // Resolve content promises.
-      .map(async (contentObject) => {
-        return {
-          ...contentObject,
-          content: await contentObject.content,
-        };
-      })
-    );
-
-    let output = contentObjects.reduce((acc, cur) => {
-      return this.joinContent(acc, cur.content, separator);
-    }, '');
-
-    if (transforms && transforms.after) {
-      output = await this.applyAfterTransform(output, transforms.after);
-    }
-
-    return output;
-  }
-
-  /**
-   * Appends the given content to the given accumulated value.
-   *
-   * @param {*} acc - Accumulator.
-   * @param {string} cur - Current string.
-   *
-   * @returns {string} Joined string.
-   */
-  joinContent(acc, cur, separator = '\n') {
-    if (acc.length) {
-      return `${acc}${separator}${cur}`;
-    }
-    return cur;
-  }
-
-  /**
-   * Returns an array of paths found using the given glob string(s).
-   *
-   * @param {string|array} source - Input path glob, or array of input globs.
-   *
-   * @return {array} Array of paths found using input glob.
-   */
-  async getPathsForSource(source) {
-    let fileSource = source;
-    if (!Array.isArray(source)) {
-      fileSource = [fileSource];
-    }
-
-    return await globby(fileSource);
-  }
-
-  /**
-   * Gets an object containing the path and content promise for the given path.
-   *
-   * @param {string} path - Path to file.
-   * @param {string} encoding - File encoding.
-   *
-   * @return {Object} Object containing path and content promise.
-   */
-  getContentObjectForPath(path, encoding = 'utf8') {
-    return {
-      path,
-      content: readFilePromise(path, encoding),
-    };
-  }
-
-  /**
-   * Transforms the given contentObject's content using the given transform.
-   *
-   * @param {Object} contentObject - Content object to apply transformation.
-   * @param {Object} transforms - Object containing content transformations.
-   *
-   * @return {Object} Content object with transformed content.
-   */
-  getTransformedContentObject(contentObject, transforms) {
-    if (transforms && transforms.before) {
-      const transformedContent = this.applyBeforeTransform(
-        contentObject,
-        transforms.before);
-
-      return {
-        ...contentObject,
-        content: transformedContent,
-      };
-    }
-    return contentObject;
-  }
-
-  /**
-   * Applies the "Before" transformation to the given content object.
-   *
-   * @param {Object} contentObject - Content object to apply transformation.
-   * @param {Object} transformation - Transformation callback.
-   *
-   * @return {Object} Content object with transformed content.
-   */
-  async applyBeforeTransform(contentObject, transformation) {
-    const loadedContent = await contentObject.content;
-
-    return await transformation(loadedContent, contentObject.path);
-  }
-
-  /**
-   * Applies the "After" transformation to the given content.
-   *
-   * @param {string} content - Content to apply transformation.
-   * @param {Object} transformation - Transformation callback.
-   *
-   * @return {string} Transformed content.
-   */
-  async applyAfterTransform(content, transformation) {
-    return await transformation(content);
   }
 }
 
