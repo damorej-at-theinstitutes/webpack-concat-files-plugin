@@ -6,7 +6,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-/**
+/*
  * Tests for GlobHandler class.
  */
 describe('GlobHandler', function() {
@@ -84,5 +84,4 @@ describe('GlobHandler', function() {
       return expect(globHandlerOutput).to.eventually.eql(expectedArray);
     });
   });
-
 });
