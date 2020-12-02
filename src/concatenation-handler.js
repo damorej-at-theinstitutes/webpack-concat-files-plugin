@@ -1,5 +1,5 @@
 /**
- * Handles content concatenation and transformation.
+ * Performs content concatenation and transformation.
  */
 class ConcatenationHandler {
 

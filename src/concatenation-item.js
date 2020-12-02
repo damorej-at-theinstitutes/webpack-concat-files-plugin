@@ -9,12 +9,8 @@ class ConcatenationItem {
   /**
    * Constructor.
    *
-   * An optional filesystem module can be supplied if using MemFS or similar.
-   * By default, Node's `fs` module is used.
-   *
    * @param {string} content - Content to be concatenated.
    * @param {string} filepath - Path to file which contains content.
-   * @param {Object=} fs - Optional filesystem module.
    */
   constructor(content, filepath) {
     /// String containing content to be concatenated.
