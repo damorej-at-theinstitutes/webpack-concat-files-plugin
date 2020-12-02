@@ -5,13 +5,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Webpack 5 support
+- `allowOptimization` option to allow Webpack 5 to optimize concatenated output if it's configured to do so
+- `bundle.src` option to replace `bundle.source`
+- `bundle.dest` option to replace `bundle.destination`
+- *Compatibility* section to `README.md`
+
+### Fixed
+- Issue causing unreliable concatenation when deleting files and directories while in watch mode
+
+### Changed
+- Deprecated `bundle.source` option in favor of `bundle.src`
+- Deprecated `bundle.destination` option in favor of `bundle.dest`
+- `README.md` to reflect changes and additions to plugin options
 
 ## [0.4.1] - 2020-10-20
-### Fixed
-- Issue causing `ENOENT` errors when watched files get deleted
-
 ### Added
 - *Contributors* section to `README.md`
+
+### Fixed
+- Issue causing `ENOENT` errors when watched files get deleted
 
 ## [0.4.0] - 2020-07-10
 ### Changed

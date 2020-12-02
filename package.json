@@ -1,18 +1,25 @@
 {
   "name": "webpack-concat-files-plugin",
-  "version": "0.4.2",
+  "version": "0.4.1",
   "description": "Concatenate and transform files using Webpack",
-  "main": "index.js",
+  "main": "src/index.js",
+  "scripts": {
+    "test-webpack4": "cd webpack-4; yarn install; yarn test; cd ..",
+    "test-webpack5": "cd webpack-5; yarn install; yarn test; cd ..",
+    "test-unit": "npx mocha ./test/unit/**/*.test.js",
+    "test": "npm run test-unit; npm run test-webpack4; npm run test-webpack5 --scripts-prepend-node-path"
+  },
   "repository": "https://github.com/damorej-at-theinstitutes/webpack-concat-files-plugin.git",
-  "author": "AICPCU\\damorej <damorej@theinstitutes.org>",
+  "author": "The Institutes <damorej@theinstitutes.org>",
   "license": "MIT",
   "private": false,
   "dependencies": {
     "globby": "^10.0.1",
+    "schema-utils": "^3.0.0",
     "webpack-sources": "^1.4.3"
   },
   "peerDependencies": {
-    "webpack": "4"
+    "webpack": "4.x || 5.x"
   },
   "keywords": [
     "webpack",
@@ -21,5 +28,10 @@
     "concatenation",
     "files",
     "transform"
-  ]
+  ],
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^8.2.1"
+  }
 }
