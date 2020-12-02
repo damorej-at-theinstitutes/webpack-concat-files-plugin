@@ -41,6 +41,7 @@ describe('webpack-concat-files-plugin', function() {
       before(function(done) {
         this.timeout(WEBPACK_TIMEOUT);
         const compiler = webpack(config);
+        compiler.options.output.futureEmitAssets = true; // Forces Webpack 4 output to be like Webpack 5.
         compiler.inputFileSystem = fs;
         compiler.outputFileSystem = fs;
         compiler.run(function(err, stats) {
@@ -73,38 +74,41 @@ describe('webpack-concat-files-plugin', function() {
         expect(assets).to.be.an('array').that.includes('concat-files/concat-c.js');
       });
 
+      // Confirm that each concatenated file has been written to the file system.
+      it('should write each asset to the filesystem', function() {
+        const assets = result_stats.toJson().assets.map((asset) => asset.name);
+        assets.forEach((asset) => {
+          const filepath = path.join(DIST_DIR, asset);
+          expect(fs.existsSync(filepath)).to.be.true;
+        });
+      });
+
       // Confirm that basic concatenated bundle output matches expected content.
       it('should contain the correct content for basic concatenated bundle', function() {
-        const asset = result_stats.compilation.assets['concat-files/concat-a.js'];
-        const source = asset.source();
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files/concat-a.js'), 'utf8');
         const expected = `console.log("Hello, world A");
 
 console.log("Hello, world B");
 
 console.log("Hello, world C");
 `;
-        expect(source).to.be.a('string');
         expect(source).to.equal(expected);
       });
 
       // Confirm that concatenation with transformations matches expected content.
       it('should contain the correct content for transformed concatenated bundle', function() {
-        const asset = result_stats.compilation.assets['concat-files/concat-b.js'];
-        const source = asset.source();
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files/concat-b.js'), 'utf8');
         const expected = `/* COMMENT */console.log('A');/* COMMENT */console.log('B');`;
-        expect(source).to.be.a('string');
         expect(source).to.equal(expected);
       });
 
       // Confirm that concatenation with custom separator string matches expected content.
       it('should contain the correct content for concatenated bundle with custom separator', function() {
-        const asset = result_stats.compilation.assets['concat-files/concat-c.js'];
-        const source = asset.source();
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files/concat-c.js'), 'utf8');
         const expected = `console.log('A');
 /* ENDFILE */
 console.log('B');
 `;
-        expect(source).to.be.a('string');
         expect(source).to.equal(expected);
       });
     });
