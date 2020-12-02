@@ -1,4 +1,3 @@
-const { createFsFromVolume, Volume } = require('memfs');
 const path = require('path');
 const chai = require('chai');
 const expect = chai.expect;
@@ -6,8 +5,9 @@ const plugin = require('../../src/index.js');
 const webpack = require('webpack');
 const config = require('./test-project/webpack.config.js');
 const promisify = require('util').promisify;
-const MemoryFs = require('memory-fs');
 const testFilesystem = require('./testfs.js');
+
+const DIST_DIR = path.join(__dirname, 'test-project', 'dist');
 
 /*
  * Set up `fs` object for Webpack 4 and Webpack 5.
@@ -17,7 +17,7 @@ const testFilesystem = require('./testfs.js');
 const fs = (() => {
   if (WEBPACK_VERSION === 4) {
     // Webpack 4
-    const memoryFs = new MemoryFs();
+    const memoryFs = new (require('memory-fs'))();
     Object.keys(testFilesystem).forEach((testFilesystemKey) => {
       memoryFs.mkdirpSync(path.dirname(testFilesystemKey));
       memoryFs.writeFileSync(testFilesystemKey, testFilesystem[testFilesystemKey], 'utf8');
@@ -26,6 +26,7 @@ const fs = (() => {
   }
   else {
     // Webpack 5
+    return require('fs');
   }
 })();
 
