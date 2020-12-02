@@ -1,45 +1,8 @@
 const FileTrackerInterface = require('./file-tracker-interface.js');
 const path = require('path');
 const promisify = require('util').promisify;
-
-// TODO Refactor `fileExists` and `isDirectory` into separate module and add unit tests.
-/**
- * Determine if a file is accessible asynchronously.
- *
- * Relies on `fs.access`. The supplied FS module must implement this function.
- *
- * @param {string} filepath - Path to file for which to check existence.
- * @param {Object} fsModule - Filesystem module to use for operation.
- *
- * @returns {Promise} Promise resolving to true if file at filepath exists.
- */
-const fileExists = async (filepath, fsModule) => {
-  const access = promisify(fsModule.access);
-  let exists = true;
-  try {
-    await access(filepath, fsModule.constants.F_OK);
-  }
-  catch (e) {
-    exists = false;
-  }
-  return exists;
-}
-
-/**
- * Determines if the given filepath is a directory.
- *
- * Relies on `fs.lstat`. The supplied FS module must implement this function.
- *
- * @param {string} filepath - Path to file or directory.
- * @param {Object} fsModule - Filesystem module to use for operation.
- *
- * @returns {Promise} Promise resolving to true if filepath is a directory.
- */
-const isDirectory = async (filepath, fsModule) => {
-  const lstat = promisify(fsModule.lstat);
-  const stats = await lstat(filepath);
-  return stats.isDirectory();
-}
+const fileExists = require('./util/file-exists.js');
+const isDirectory = require('./util/is-directory.js');
 
 /**
  * FileTrackerInterface implementation for Webpack 4.
