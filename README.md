@@ -71,6 +71,7 @@ The `options` object can contain the following properties:
 * `bundles`: (_Array_) List of bundle objects
 * `separator`: (_String_) Separator inserted between concatenated content (Optional, default `'\n'`)
 * `allowWatch`: (_Boolean_) Determines whether bundles should be watched and automatically concatenated when using Webpack's watch mode (Optional, default `true`)
+* `allowOptimization`: (_Boolean_) Determines whether Webpack should optimize concatenated bundles according to its optimization configuration. Webpack 5 only. (Optional, default `false`)
 
 ### Bundles
 Each object specified in the `bundles` array can contain the following properties:

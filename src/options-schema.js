@@ -90,6 +90,9 @@ module.exports = {
     allowWatch: {
       type: 'boolean',
     },
+    allowOptimization: {
+      type: 'boolean',
+    },
   },
   required: [],
   additionalProperties: false,
