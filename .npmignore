@@ -1,0 +1,11 @@
+# Editor files
+.editorconfig
+*.sublime-project
+
+# Logs
+*.log
+
+# Tests
+test/
+webpack-4/
+webpack-5/
