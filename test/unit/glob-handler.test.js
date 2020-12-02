@@ -55,7 +55,7 @@ describe('GlobHandler', function() {
     before(function() {
       const glob = './test/unit/test-files/**/*.txt';
       const globHandler = new GlobHandler(glob);
-      globHandlerOutput = globHandler.getConcatenationItems();
+      globHandlerOutput = globHandler.getConcatenationItems('utf8');
     });
 
     // Ensure `getConcatenationItems()` returns a promise.
