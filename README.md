@@ -93,6 +93,13 @@ The following options have been deprecated and will be removed in a future relea
 * `bundle.source`: (_String_ or _Array_) Replaced by `bundle.src`. See documentation above.
 * `bundle.destination`: (_String_) Replaced by `bundle.dest`. See documentation above.
 
+## Compatibility
+`webpack-concat-files-plugin` is compatible with Webpack 4 and Webpack 5:
+
+| Webpack 4           | Webpack 5        |
+| ------------------- | ---------------- |
+| `4.40.x` or greater | `5.x` or greater |
+
 ## Contributors
 Special thanks to everybody who's contributed to this project!
 
