@@ -13,6 +13,7 @@ module.exports = {
           dest: {
             type: 'string',
           },
+          // TODO Remove 'destination' schema property once 'destination' option is removed.
           destination: {
             type: 'string',
           },
@@ -29,6 +30,7 @@ module.exports = {
               },
             ],
           },
+          // TODO Remove 'source' schema property once 'source' option is removed.
           source: {
             anyOf: [
               {
@@ -57,6 +59,7 @@ module.exports = {
             type: 'string',
           },
         },
+        // TODO Replace with 'required' once 'source' and 'destination' are removed.
         allOf: [
           {
             // Only one of 'src' and 'source' can be defined.
