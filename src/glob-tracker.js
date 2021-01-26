@@ -1,4 +1,5 @@
 const arraysEqual = require('./util/arrays-equal.js');
+const { replacePathSeparator, restorePathSeparator } = require('./util/path-separators.js');
 
 /**
  * Tracks changes in glob results over a period of time.
@@ -26,8 +27,9 @@ class GlobTracker {
    * @returns {Array} Array containing glob value, or an empty array.
    */
   get(key) {
-    if (this.currentGlobs[key]) {
-      return this.currentGlobs[key];
+    const transformedKey = replacePathSeparator(key, '/');
+    if (this.currentGlobs[transformedKey]) {
+      return this.currentGlobs[transformedKey];
     }
     return [];
   }
@@ -42,8 +44,9 @@ class GlobTracker {
    * @returns {Array} Array containing previous glob value, or an empty array.
    */
   getPrev(key) {
-    if (this.prevGlobs[key]) {
-      return this.prevGlobs[key];
+    const transformedKey = replacePathSeparator(key, '/');
+    if (this.prevGlobs[transformedKey]) {
+      return this.prevGlobs[transformedKey];
     }
     return [];
   }
@@ -55,7 +58,8 @@ class GlobTracker {
    * @params {Array} globValue - Glob value to set for key.
    */
   set(key, globValue) {
-    this.currentGlobs[key] = globValue;
+    const transformedKey = replacePathSeparator(key, '/');
+    this.currentGlobs[transformedKey] = globValue;
   }
 
   /**
@@ -66,7 +70,8 @@ class GlobTracker {
    * @returns {boolean} True if value has changed, false otherwise.
    */
   hasChanged(key) {
-    return !(arraysEqual(this.get(key), this.getPrev(key)));
+    const transformedKey = replacePathSeparator(key, '/');
+    return !(arraysEqual(this.get(transformedKey), this.getPrev(transformedKey)));
   }
 
   /**

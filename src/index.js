@@ -8,6 +8,7 @@ const optionsSchema = require('./options-schema.js');
 const path = require('path');
 const { RawSource } = require('webpack-sources');
 const { validate } = require('schema-utils');
+const { replacePathSeparator, restorePathSeparator } = require('./util/path-separators.js');
 
 // Plugin name.
 const PLUGIN_NAME = 'WebpackConcatenateFilesPlugin';
@@ -134,7 +135,7 @@ class WebpackConcatenateFilesPlugin {
             logger.warn(`The 'bundle.source' and 'bundle.destination' options have been deprecated and will be removed. Use 'bundle.src' and 'bundle.dest' instead.`);
           }
           // TODO Remove conditional assignment once `source` and `destination` options are removed.
-          const src = bundle.src || bundle.source;
+          const src = replacePathSeparator(bundle.src || bundle.source, '/');
           const dest = bundle.dest || bundle.destination;
 
           const globHandler = new GlobHandler(src);
@@ -169,7 +170,7 @@ class WebpackConcatenateFilesPlugin {
 
           const concatItems = await globHandler.getConcatenationItems(encoding);
           const concatAsset = await concatHandler.concatenate(concatItems);
-          const concatKey = path.relative(compiler.options.output.path, dest);
+          const concatKey = replacePathSeparator(path.relative(compiler.options.output.path, dest), '/');
 
           /*
            * If `allowOptimization` is false, set the asset info's `minimized`
