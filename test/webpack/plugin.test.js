@@ -86,7 +86,7 @@ describe('webpack-concat-files-plugin', function() {
 
       // Confirm that basic concatenated bundle output matches expected content.
       it('should contain the correct content for basic concatenated bundle', function() {
-        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files/concat-a.js'), 'utf8');
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files', 'concat-a.js'), 'utf8');
         const expected = `console.log("Hello, world A");
 
 console.log("Hello, world B");
@@ -98,14 +98,14 @@ console.log("Hello, world C");
 
       // Confirm that concatenation with transformations matches expected content.
       it('should contain the correct content for transformed concatenated bundle', function() {
-        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files/concat-b.js'), 'utf8');
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files', 'concat-b.js'), 'utf8');
         const expected = `/* COMMENT */console.log('A');/* COMMENT */console.log('B');`;
         expect(source).to.equal(expected);
       });
 
       // Confirm that concatenation with custom separator string matches expected content.
       it('should contain the correct content for concatenated bundle with custom separator', function() {
-        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files/concat-c.js'), 'utf8');
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files', 'concat-c.js'), 'utf8');
         const expected = `console.log('A');
 /* ENDFILE */
 console.log('B');
