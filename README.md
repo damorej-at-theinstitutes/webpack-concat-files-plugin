@@ -90,8 +90,8 @@ The object specified for each `transforms` bundle property can contain any of th
 ### Deprecated Options
 The following options have been deprecated and will be removed in a future release:
 
-* `bundle.source`: (_String_ or _Array_) Replaced by `bundle.src`. See documentation above.
-* `bundle.destination`: (_String_) Replaced by `bundle.dest`. See documentation above.
+* `bundle.source`: (_String_ or _Array_) Replaced with `bundle.src`. See documentation above.
+* `bundle.destination`: (_String_) Replaced with `bundle.dest`. See documentation above.
 
 ## Compatibility
 `webpack-concat-files-plugin` is compatible with Webpack 4 and Webpack 5:
