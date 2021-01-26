@@ -147,18 +147,6 @@ class WebpackConcatenateFilesPlugin {
             fileTracker.createWatchers(concatPaths, compilation);
           }
 
-          const bundleFilesAbsolute = concatPaths.map((bundleFile) => {
-            if (!path.isAbsolute(bundleFile)) {
-              return path.resolve(compiler.options.context, bundleFile);
-            }
-            return bundleFile;
-          });
-
-          const bundleHasChanged = fileTracker.getChangedFiles().some((changedFile) => {
-            const changedFileAbsolute = path.resolve(compiler.options.context, changedFile);
-            return bundleFilesAbsolute.includes(changedFileAbsolute);
-          });
-
           const changedBundleFiles = concatPaths.filter((filepath) => {
             return fileTracker.getChangedFiles().includes(filepath);
           });
