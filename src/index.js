@@ -8,7 +8,7 @@ const optionsSchema = require('./options-schema.js');
 const path = require('path');
 const { RawSource } = require('webpack-sources');
 const { validate } = require('schema-utils');
-const { replacePathSeparator, restorePathSeparator } = require('./util/path-separators.js');
+const { replacePathSeparator } = require('./util/path-separators.js');
 
 // Plugin name.
 const PLUGIN_NAME = 'WebpackConcatenateFilesPlugin';
