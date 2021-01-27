@@ -1,0 +1,21 @@
+{
+  "name": "webpack5-concat-files-plugin-tests",
+  "version": "0.1.0",
+  "description": "Test Webpack 5 project for webpack-concat-files-plugin",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "webpack": "npx webpack --config=../test/webpack/test-project/webpack.config.js",
+    "test": "cross-env NODE_PATH='./node_modules' npx mocha ../test/webpack/**/*.test.js --require ./setup.js"
+  },
+  "author": "The Institutes <damorej@theinstitutes.org>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "cross-env": "^7.0.3",
+    "mocha": "^8.2.1",
+    "webpack": "^5.8.0",
+    "webpack-cli": "^4.2.0"
+  }
+}
