@@ -48,7 +48,9 @@ class WebpackConcatenateFilesPlugin {
     const self = this;
     const logger = compiler.getInfrastructureLogger(PLUGIN_NAME);
     const globTracker = new GlobTracker();
+
     let fileTracker;
+    let prevAssets = [];
 
     compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation, compilationParams) => {
 
@@ -151,14 +153,16 @@ class WebpackConcatenateFilesPlugin {
             return fileTracker.getChangedFiles().includes(filepath);
           });
 
+          const concatKey = replacePathSeparator(path.relative(compiler.options.output.path, dest), '/');
+
           // No files within this bundle have changed; short-circuit.
           if (!globTracker.hasChanged(dest) && !changedBundleFiles.length && !fileTracker.isFirstRun()) {
+            compilation.assets[concatKey] = prevAssets[concatKey];
             return;
           }
 
           const concatItems = await globHandler.getConcatenationItems(encoding);
           const concatAsset = await concatHandler.concatenate(concatItems);
-          const concatKey = replacePathSeparator(path.relative(compiler.options.output.path, dest), '/');
 
           /*
            * If `allowOptimization` is false, set the asset info's `minimized`
@@ -170,6 +174,7 @@ class WebpackConcatenateFilesPlugin {
         });
 
         await Promise.all(promises);
+        prevAssets = compilation.assets;
         globTracker.reset();
         fileTracker.reset(compilation);
         callback();
