@@ -3,6 +3,7 @@ const path = require('path');
 const promisify = require('util').promisify;
 const fileExists = require('./util/file-exists.js');
 const isDirectory = require('./util/is-directory.js');
+const { replacePathSeparator } = require('./util/path-separators.js');
 
 /**
  * FileTrackerInterface implementation for Webpack 4.
@@ -90,7 +91,9 @@ class FileTrackerInterfaceWebpack4 extends FileTrackerInterface {
    * @returns {string[]} Array of file paths that have chaned since last run.
    */
   getChangedFiles() {
-    return this.changedFiles;
+    return this.changedFiles.map((changedFile) => {
+      return replacePathSeparator(changedFile, '/');
+    });
   }
 }
 
