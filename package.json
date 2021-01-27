@@ -21,6 +21,9 @@
   "peerDependencies": {
     "webpack": "4.x || 5.x"
   },
+  "files": [
+    "/src"
+  ],
   "keywords": [
     "webpack",
     "plugin",
