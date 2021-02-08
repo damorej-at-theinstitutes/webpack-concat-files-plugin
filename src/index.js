@@ -136,8 +136,19 @@ class WebpackConcatenateFilesPlugin {
           if ((bundle.source || bundle.destination) && fileTracker.isFirstRun()) {
             logger.warn(`The 'bundle.source' and 'bundle.destination' options have been deprecated and will be removed. Use 'bundle.src' and 'bundle.dest' instead.`);
           }
-          // TODO Remove conditional assignment once `source` and `destination` options are removed.
-          const src = replacePathSeparator(bundle.src || bundle.source, '/');
+
+          const src = (() => {
+            // TODO Remove conditional assignment once `source` and `destination` options are removed.
+            const srcOption = bundle.src || bundle.source;
+
+            if (Array.isArray(srcOption)) {
+              return srcOption.map((srcString) => {
+                return replacePathSeparator(srcString, '/');
+              });
+            }
+            return replacePathSeparator(srcOption, '/');
+          })();
+
           const dest = bundle.dest || bundle.destination;
 
           const globHandler = new GlobHandler(src);
