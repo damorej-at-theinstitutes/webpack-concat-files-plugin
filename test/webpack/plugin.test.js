@@ -73,6 +73,7 @@ describe('webpack-concat-files-plugin', function() {
         expect(assets).to.be.an('array').that.includes('concat-files/concat-a.js');
         expect(assets).to.be.an('array').that.includes('concat-files/concat-b.js');
         expect(assets).to.be.an('array').that.includes('concat-files/concat-c.js');
+        expect(assets).to.be.an('array').that.includes('concat-files/concat-d.js');
       });
 
       // Confirm that each concatenated file has been written to the file system.
@@ -93,6 +94,17 @@ console.log("Hello, world B");
 
 console.log("Hello, world C");
 `;
+        expect(source).to.equal(expected);
+      });
+
+      // Confirm that plugin works when `src` is an array instead of a string.
+      it('should contain the correct content for concatenated bundle where `src` is an array', function() {
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files', 'concat-d.js'), 'utf8');
+        const expected=`console.log("Hello, world! 1");
+
+console.log("Hello, world! 2");
+`;
+
         expect(source).to.equal(expected);
       });
 
