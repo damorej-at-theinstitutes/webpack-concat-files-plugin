@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2021-02-15
+### Fixed
+- Error when `bundle.src` or `bundle.source` options are arrays instead of strings
+
 ## [0.5.0] - 2021-01-27
 ### Added
 - Webpack 5 support

@@ -25,6 +25,14 @@ module.exports = {
           src: path.resolve(__dirname, './src/concat-files/a/**/*.js'),
           dest: path.resolve(__dirname, 'dist/concat-files/concat-a.js'),
         },
+        // Test 'src' as an array.
+        {
+          src: [
+            path.resolve(__dirname, './src/concat-files/d/**/*.js'),
+            path.resolve(__dirname, './src/concat-files/e/**/*.js'),
+          ],
+          dest: path.resolve(__dirname, 'dist/concat-files/concat-d.js'),
+        },
         // Test `transforms` property.
         {
           src: path.resolve(__dirname, './src/concat-files/b/**/*.js'),
