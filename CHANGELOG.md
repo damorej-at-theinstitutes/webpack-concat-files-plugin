@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2021-02-25
+### Fixed
+- Issue causing `before` transform callback's second parameter to be `undefined`
+
+### Changed
+- Improved Terser example in `README.md`
+
 ## [0.5.1] - 2021-02-15
 ### Fixed
 - Error when `bundle.src` or `bundle.source` options are arrays instead of strings

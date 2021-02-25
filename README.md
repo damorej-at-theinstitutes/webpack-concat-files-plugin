@@ -51,11 +51,12 @@ const webpackConfig = {
     new WebpackConcatPlugin({
       bundles: [
         {
-          dest: './dist/polyfills.min.js',
           src: './scripts/polyfills/**/*.js',
+          dest: './dist/polyfills.min.js',
           transforms: {
-            after: (code) => {
-              return terser.minify(code).code;
+            after: async (code) => {
+              const minifiedCode = await terser.minify(code);
+              return minifiedCode.code;
             },
           },
         },
@@ -103,5 +104,5 @@ The following options have been deprecated and will be removed in a future relea
 ## Contributors
 Special thanks to everybody who's contributed to this project!
 
-| [@davidwarrington](https://github.com/davidwarrington) | [@Iszacsuri](https://github.com/lszacsuri) | [@jarrettgreen](https://github.com/jarrettgreen)
-|-|-|-|
+| [@davidwarrington](https://github.com/davidwarrington) | [@Iszacsuri](https://github.com/lszacsuri) | [@jarrettgreen](https://github.com/jarrettgreen) | [@wagoid](https://github.com/wagoid)
+|-|-|-|-|

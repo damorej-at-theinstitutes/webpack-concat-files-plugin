@@ -115,6 +115,22 @@ console.log("Hello, world! 2");
         expect(source).to.equal(expected);
       });
 
+      it('should contain the correct content for transformed concatenated bundle with filepath arg', function() {
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files', 'concat-f.js'), 'utf8');
+        const expectedPathA = path
+          .resolve(__dirname, 'test-project', 'src', 'concat-files', 'f', '1.js')
+          .split(path.sep)
+          .join('/');
+
+        const expectedPathB = path
+          .resolve(__dirname, 'test-project', 'src', 'concat-files', 'f', '2.js')
+          .split(path.sep)
+          .join('/');
+
+        const expected = `/* ${expectedPathA} */console.log('1');\n\n/* ${expectedPathB} */console.log('2');\n`;
+        expect(source).to.equal(expected);
+      });
+
       // Confirm that concatenation with custom separator string matches expected content.
       it('should contain the correct content for concatenated bundle with custom separator', function() {
         const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files', 'concat-c.js'), 'utf8');
