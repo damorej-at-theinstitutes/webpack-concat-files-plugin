@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- Fixed issue causing `before` transform callback's second parameter to be `undefined`
+- Issue causing `before` transform callback's second parameter to be `undefined`
 
 ### Changed
 - Improved Terser example in `README.md`
