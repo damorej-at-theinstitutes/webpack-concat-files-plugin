@@ -51,11 +51,12 @@ const webpackConfig = {
     new WebpackConcatPlugin({
       bundles: [
         {
-          dest: './dist/polyfills.min.js',
           src: './scripts/polyfills/**/*.js',
+          dest: './dist/polyfills.min.js',
           transforms: {
-            after: (code) => {
-              return terser.minify(code).code;
+            after: async (code) => {
+              const minifiedCode = await terser.minify(code);
+              return minifiedCode.code;
             },
           },
         },
