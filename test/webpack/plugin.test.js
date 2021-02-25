@@ -115,6 +115,12 @@ console.log("Hello, world! 2");
         expect(source).to.equal(expected);
       });
 
+      it('should contain the correct content for transformed concatenated bundle with filepath arg', function() {
+        const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files', 'concat-f.js'), 'utf8');
+        const expected = `/*  */`;
+        expect(source).to.equal(expected);
+      });
+
       // Confirm that concatenation with custom separator string matches expected content.
       it('should contain the correct content for concatenated bundle with custom separator', function() {
         const source = fs.readFileSync(path.join(DIST_DIR, 'concat-files', 'concat-c.js'), 'utf8');

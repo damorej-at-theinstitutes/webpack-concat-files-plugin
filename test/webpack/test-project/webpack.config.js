@@ -46,6 +46,16 @@ module.exports = {
             },
           },
         },
+        // Test `transforms` property with filepath argument.
+        {
+          src: path.resolve(__dirname, './src/concat-files/f/**/*.js'),
+          dest: path.resolve(__dirname, 'dist/concat-files/concat-f.js'),
+          transforms: {
+            before: (content, filepath) => {
+              return `/* ${filepath} */${content}`;
+            },
+          },
+        },
       ],
     }),
     new ConcatFilesPlugin({
