@@ -53,13 +53,13 @@ class ConcatenationHandler {
    *
    * @param {Object} item - Concatenation item to transform.
    * @param {string} item.content - Concatenation item content.
-   * @param {string} item.path - Concatenation item source path.
+   * @param {string} item.filepath - Concatenation item source filepath.
    *
    * @returns {Promise} Promise resolving to string of transformed content.
    */
   async _applyBeforeTransform(item) {
     if (this.transforms && this.transforms.before) {
-      return this.transforms.before(item.content, item.path);
+      return this.transforms.before(item.content, item.filepath);
     }
     // Leave content unchanged if no transform exists.
     return item.content;
