@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Updated `mocha` dev dependency to resolve `y18n` v4.0.0 prototype pollution security vulnerability
-- Updated to `webpack` v4.46.0 for Webpack 4 tests
+- Upgraded `mocha` dev dependency to resolve `y18n` v4.0.0 prototype pollution security vulnerability
+- Upgraded to `webpack` v4.46.x for Webpack 4 tests
+- Upgraded to `webpack` v5.36.x for Webpack 5 tests
 
 ## [0.5.2] - 2021-02-25
 ### Fixed

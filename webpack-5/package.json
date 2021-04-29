@@ -15,7 +15,7 @@
     "chai": "^4.2.0",
     "cross-env": "^7.0.3",
     "mocha": "^8.3.2",
-    "webpack": "^5.8.0",
+    "webpack": "^5.36.1",
     "webpack-cli": "^4.2.0"
   }
 }
